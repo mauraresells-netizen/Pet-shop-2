@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product — Pet Shop Glasgow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --crimson:   #9b1b30;
+  --crimson-dk:#7a1526;
+  --crimson-lt:#f9eaec;
+  --gold:      #c9a84c;
+  --gold-lt:   #fdf7ec;
+  --white:     #ffffff;
+  --off-white: #faf8f6;
+  --warm-gray: #f3f0ee;
+  --text:      #1c1c1c;
+  --text-mid:  #5a5a5a;
+  --text-light:#909090;
+  --border:    #e4e0dc;
+  --ease:      cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { background:var(--white); color:var(--text); font-family:'Jost',sans-serif; overflow-x:hidden; }
+img { display:block; max-width:100%; }
+a { color:inherit; text-decoration:none; }
+button { font-family:inherit; }
+
+/* NAV */
+#nav {
+  position:fixed; inset:0 0 auto 0; z-index:900; height:72px;
+  background:var(--white); border-bottom:1px solid var(--border);
+  padding:0 5%; display:flex; align-items:center; justify-content:space-between;
+  box-shadow:0 2px 20px rgba(0,0,0,.05);
+}
+.nav-logo { font-family:'Cormorant Garamond',serif; font-size:1.65rem; font-weight:600; letter-spacing:.06em; color:var(--text); display:flex; align-items:center; gap:.3rem; }
+.nav-logo span { color:var(--gold); }
+.nav-links { display:flex; gap:2.5rem; list-style:none; }
+.nav-links a { font-size:.72rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--text-mid); position:relative; padding-bottom:3px; transition:color .25s; }
+.nav-links a::after { content:''; position:absolute; bottom:0; left:0; width:0; height:1px; background:var(--crimson); transition:width .3s; }
+.nav-links a:hover { color:var(--crimson); }
+.nav-links a:hover::after { width:100%; }
+.nav-right { display:flex; align-items:center; gap:1rem; }
+.cart-btn { display:flex; align-items:center; gap:.45rem; background:none; border:1px solid var(--border); color:var(--text); padding:.45rem .9rem; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; transition:border-color .25s,color .25s; }
+.cart-btn:hover { border-color:var(--crimson); color:var(--crimson); }
+.cart-badge { background:var(--crimson); color:#fff; width:17px; height:17px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.58rem; font-weight:600; }
+.hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
+.hamburger span { display:block; width:22px; height:1.5px; background:var(--text); transition:all .3s; }
+.hamburger.open span:nth-child(1) { transform:translateY(6.5px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity:0; }
+.hamburger.open span:nth-child(3) { transform:translateY(-6.5px) rotate(-45deg); }
+#mob-menu { position:fixed; inset:0; z-index:850; background:var(--white); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2.2rem; opacity:0; pointer-events:none; transition:opacity .35s; }
+#mob-menu.open { opacity:1; pointer-events:all; }
+#mob-menu a { font-family:'Cormorant Garamond',serif; font-size:3rem; font-weight:300; color:var(--text); transition:color .25s; }
+#mob-menu a:hover { color:var(--crimson); }
+
+/* BREADCRUMB */
+#breadcrumb {
+  margin-top:72px; padding:1rem 5%;
+  background:var(--off-white); border-bottom:1px solid var(--border);
+}
+.breadcrumb-inner { display:flex; align-items:center; gap:.6rem; font-size:.72rem; font-weight:400; color:var(--text-light); }
+.breadcrumb-inner a { color:var(--text-mid); transition:color .25s; }
+.breadcrumb-inner a:hover { color:var(--crimson); }
+.breadcrumb-sep { color:var(--border); }
+.breadcrumb-current { color:var(--text); font-weight:500; }
+
+/* PRODUCT LAYOUT */
+#product-main {
+  display:grid; grid-template-columns:1fr 1fr;
+  min-height:calc(100vh - 120px);
+  max-width:1400px; margin:0 auto;
+  padding:3rem 5% 5rem;
+  gap:5%;
+  align-items:start;
+}
+
+/* IMAGE PANEL */
+.product-img-panel { position:sticky; top:96px; }
+.product-img-main {
+  position:relative; overflow:hidden;
+  aspect-ratio:1; background:var(--warm-gray);
+}
+.product-img-main img {
+  width:100%; height:100%; object-fit:cover;
+  transition:transform .5s var(--ease);
+}
+.product-img-main:hover img { transform:scale(1.04); }
+.product-badge {
+  position:absolute; top:1rem; left:1rem;
+  font-size:.58rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase;
+  padding:.28rem .6rem;
+}
+.product-badge.best { background:var(--crimson); color:#fff; }
+.product-badge.new  { background:var(--white); border:1px solid var(--crimson); color:var(--crimson); }
+
+/* INFO PANEL */
+.product-info-panel { padding:.5rem 0; }
+
+.product-category {
+  display:inline-flex; align-items:center; gap:.5rem;
+  font-size:.65rem; font-weight:600; letter-spacing:.28em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:1rem;
+}
+.product-category::before { content:''; width:22px; height:1px; background:var(--gold); }
+
+.product-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,3.5vw,2.8rem); font-weight:400; line-height:1.1;
+  color:var(--text); margin-bottom:1rem;
+}
+
+.product-price-row { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; }
+.product-price {
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem; font-weight:600; color:var(--crimson);
+}
+.product-badge-inline {
+  font-size:.6rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  padding:.3rem .65rem; background:var(--crimson); color:#fff;
+}
+
+.divider { width:100%; height:1px; background:var(--border); margin:1.5rem 0; }
+
+.product-desc {
+  font-size:.92rem; font-weight:300; color:var(--text-mid);
+  line-height:1.85; margin-bottom:1.8rem;
+}
+
+.features-title {
+  font-size:.68rem; font-weight:600; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--text); margin-bottom:.9rem;
+}
+.features-list { list-style:none; display:flex; flex-direction:column; gap:.6rem; margin-bottom:2rem; }
+.features-list li {
+  display:flex; align-items:center; gap:.75rem;
+  font-size:.87rem; font-weight:300; color:var(--text-mid);
+}
+.features-list li::before {
+  content:''; width:7px; height:7px; border-radius:50%;
+  background:var(--gold); flex-shrink:0;
+}
+
+/* Quantity */
+.qty-row { display:flex; align-items:center; gap:1rem; margin-bottom:1.4rem; }
+.qty-label { font-size:.72rem; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--text-light); }
+.qty-ctrl { display:flex; align-items:center; border:1px solid var(--border); }
+.qty-btn {
+  width:38px; height:38px; background:none; border:none;
+  font-size:1.2rem; color:var(--text); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .2s;
+}
+.qty-btn:hover { background:var(--warm-gray); }
+.qty-val { width:42px; text-align:center; font-size:.9rem; font-weight:500; color:var(--text); border-left:1px solid var(--border); border-right:1px solid var(--border); height:38px; display:flex; align-items:center; justify-content:center; }
+
+/* Add to bag */
+.add-main-btn {
+  width:100%; background:var(--crimson); color:#fff; border:none;
+  padding:1.1rem; font-family:'Jost',sans-serif;
+  font-size:.78rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+  cursor:pointer; position:relative; overflow:hidden;
+  transition:background .25s, transform .2s;
+  display:flex; align-items:center; justify-content:center; gap:.75rem;
+  margin-bottom:.9rem;
+}
+.add-main-btn:hover { background:var(--crimson-dk); transform:translateY(-2px); }
+.rpl { position:absolute; border-radius:50%; background:rgba(255,255,255,.3); transform:scale(0); animation:ripple .5s linear forwards; pointer-events:none; }
+@keyframes ripple { to { transform:scale(4); opacity:0; } }
+
+.back-btn {
+  width:100%; background:transparent; color:var(--text); border:1.5px solid var(--border);
+  padding:1rem; font-family:'Jost',sans-serif;
+  font-size:.72rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
+  cursor:pointer; transition:border-color .25s, color .25s;
+  display:flex; align-items:center; justify-content:center; gap:.6rem;
+}
+.back-btn:hover { border-color:var(--crimson); color:var(--crimson); }
+
+/* Trust signals under button */
+.product-trust { display:flex; gap:1.5rem; margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid var(--border); flex-wrap:wrap; }
+.pt-item { display:flex; align-items:center; gap:.5rem; font-size:.74rem; font-weight:300; color:var(--text-mid); }
+.pt-item svg { width:14px; height:14px; stroke:var(--gold); fill:none; flex-shrink:0; }
+
+/* RELATED */
+#related { padding:4rem 5%; background:var(--off-white); border-top:1px solid var(--border); }
+.related-heading {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.6rem,2.8vw,2.2rem); font-weight:300; color:var(--text);
+  margin-bottom:.5rem;
+}
+.related-heading em { font-style:italic; color:var(--gold); }
+.related-sub { font-size:.85rem; font-weight:300; color:var(--text-mid); margin-bottom:2.5rem; }
+.related-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; }
+.related-card {
+  background:var(--white); border:1px solid var(--border); cursor:pointer;
+  transition:border-color .3s, box-shadow .3s;
+  text-decoration:none; color:inherit; display:block;
+}
+.related-card:hover { border-color:var(--crimson); box-shadow:0 6px 24px rgba(155,27,48,.08); }
+.related-img { aspect-ratio:1; overflow:hidden; background:var(--warm-gray); }
+.related-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s var(--ease); }
+.related-card:hover .related-img img { transform:scale(1.05); }
+.related-info { padding:.9rem 1rem 1.1rem; }
+.related-name { font-family:'Cormorant Garamond',serif; font-size:1rem; font-weight:500; color:var(--text); margin-bottom:.25rem; }
+.related-price { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:600; color:var(--crimson); }
+
+/* FOOTER */
+footer { background:var(--white); border-top:2px solid var(--crimson); padding:3rem 5% 1.5rem; }
+.foot-bottom-simple { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+.foot-logo-sm { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:600; color:var(--text); }
+.foot-logo-sm span { color:var(--gold); }
+.foot-copy { font-size:.72rem; font-weight:300; color:var(--text-light); }
+.foot-back-link { font-size:.72rem; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--crimson); transition:opacity .25s; }
+.foot-back-link:hover { opacity:.7; }
+
+/* RESPONSIVE */
+@media(max-width:900px) {
+  .nav-links,.cart-btn { display:none; }
+  .hamburger { display:flex; }
+  #product-main { grid-template-columns:1fr; gap:2rem; padding:2rem 5% 4rem; }
+  .product-img-panel { position:static; }
+  .related-grid { grid-template-columns:repeat(2,1fr); }
+}
+@media(max-width:480px) {
+  #nav { height:60px; padding:0 4%; }
+  .nav-logo { font-size:1.4rem; }
+  #breadcrumb { padding:.8rem 4%; }
+  #product-main { padding:1.5rem 4% 3rem; gap:1.5rem; }
+  .product-title { font-size:1.8rem; }
+  .product-price { font-size:1.7rem; }
+  .add-main-btn { padding:.95rem; font-size:.72rem; }
+  .product-trust { gap:1rem; }
+  .related-grid { grid-template-columns:repeat(2,1fr); gap:.8rem; }
+  #related { padding:3rem 4%; }
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">Pet <span>Shop</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="index.html#products">Shop</a></li>
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#newsletter">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="cart-btn" id="cartBtn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Bag &nbsp;<span class="cart-badge" id="cartBadge">0</span>
+    </button>
+    <button class="hamburger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div id="mob-menu">
+  <a href="index.html">Home</a>
+  <a href="index.html#products">Shop</a>
+  <a href="index.html#about">About</a>
+  <a href="index.html#newsletter">Contact</a>
+</div>
+
+<div id="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html">Home</a>
+    <span class="breadcrumb-sep">/</span>
+    <a href="index.html#products">Shop</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current" id="breadcrumbName">Product</span>
+  </div>
+</div>
+
+<main id="product-main">
+  <div class="product-img-panel">
+    <div class="product-img-main">
+      <img id="prodImg" src="" alt="">
+      <span class="product-badge best" id="prodBadge"></span>
+    </div>
+  </div>
+
+  <div class="product-info-panel">
+    <div class="product-category" id="prodCategory">Collection</div>
+    <h1 class="product-title" id="prodTitle">Loading...</h1>
+
+    <div class="product-price-row">
+      <div class="product-price" id="prodPrice">&pound;0.00</div>
+      <span class="product-badge-inline" id="prodBadgeInline"></span>
+    </div>
+
+    <div class="divider"></div>
+
+    <p class="product-desc" id="prodDesc"></p>
+
+    <div class="features-title">What's Included</div>
+    <ul class="features-list" id="prodFeatures"></ul>
+
+    <div class="qty-row">
+      <span class="qty-label">Quantity</span>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="changeQty(-1)">&#8722;</button>
+        <div class="qty-val" id="qtyVal">1</div>
+        <button class="qty-btn" onclick="changeQty(1)">&#43;</button>
+      </div>
+    </div>
+
+    <button class="add-main-btn" id="addMainBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Add to Bag
+    </button>
+
+    <button class="back-btn" onclick="window.location='index.html#products'">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+      Continue Shopping
+    </button>
+
+    <div class="product-trust">
+      <div class="pt-item"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Free delivery over &pound;50</div>
+      <div class="pt-item"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Quality guaranteed</div>
+      <div class="pt-item"><svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Open 7 days</div>
+    </div>
+  </div>
+</main>
+
+<section id="related">
+  <div class="related-heading">You Might Also <em>Like</em></div>
+  <p class="related-sub">More favourites from our collection</p>
+  <div class="related-grid" id="relatedGrid"></div>
+</section>
+
+<footer>
+  <div class="foot-bottom-simple">
+    <div class="foot-logo-sm">Pet <span>Shop</span></div>
+    <div class="foot-copy">&copy; 2026 Pet Shop Glasgow Ltd.</div>
+    <a href="index.html" class="foot-back-link">Back to Home</a>
+  </div>
+</footer>
+
+<script>
+var products = {
+  1: {
+    name:"Dog Treats & Chews", price:"4.99", badge:"Best Seller",
+    category:"Dogs",
+    image:"https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=900&auto=format&fit=crop",
+    desc:"A hand-picked selection of meaty bones, biscuits and chewy sticks your dog will absolutely love. Made with real meat and natural ingredients, our treat mix is suitable for all breeds and sizes. Perfect as a reward during training or just to show them some love.",
+    features:["Made with real meat & natural ingredients","Suitable for all breeds and sizes","No artificial colours or preservatives","Resealable zip bag to keep fresh","Vet-approved formulation"],
+    related:[2,3,4]
+  },
+  2: {
+    name:"Dog Lead & Collar Set", price:"12.99", badge:"Best Seller",
+    category:"Dogs",
+    image:"https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=900&auto=format&fit=crop",
+    desc:"A tough nylon collar and matching lead set built to last. Adjustable to fit any neck size with a secure quick-release clasp. Padded inner lining keeps your dog comfortable on long walks, and the reflective stitching keeps them visible at night.",
+    features:["Available in S, M, L and XL","Adjustable with quick-release clasp","Padded for all-day comfort","Reflective stitching for night safety","Easy-clean, waterproof nylon"],
+    related:[1,3,8]
+  },
+  3: {
+    name:"Dry Dog Food 10kg", price:"24.99", badge:"",
+    category:"Dogs",
+    image:"https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=900&auto=format&fit=crop",
+    desc:"A complete and balanced adult dry food formulated to support your dog's overall health. The chicken and rice recipe is highly digestible and packed with essential vitamins and minerals. No artificial colours, flavours or preservatives — just good, honest food.",
+    features:["Chicken & rice recipe — highly digestible","Complete & balanced nutrition","No artificial colours or flavours","Supports healthy coat and joints","Suitable for all adult breeds"],
+    related:[1,2,4]
+  },
+  4: {
+    name:"Soft Fleece Dog Bed", price:"19.99", badge:"New",
+    category:"Dogs",
+    image:"https://images.unsplash.com/photo-1552053831-71594a27632d?w=900&auto=format&fit=crop",
+    desc:"A supremely comfortable fleece dog bed your pet will never want to leave. The machine-washable cover makes cleaning easy, while the non-slip base keeps it firmly in place on any floor. Available in small, medium and large to suit every breed.",
+    features:["Machine washable at 40°C","Non-slip base — safe on all floor types","Available in small, medium and large","Extra-soft fleece filling","Raised bolster sides for extra support"],
+    related:[1,2,3]
+  },
+  5: {
+    name:"Wet Cat Food Multipack", price:"8.99", badge:"Best Seller",
+    category:"Cats",
+    image:"https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=900&auto=format&fit=crop",
+    desc:"A 12-pouch multipack of tender chunks in a rich gravy sauce. Three flavours are included — chicken, tuna and salmon — so even the fussiest cat will find something they love. High in protein and made without artificial additives.",
+    features:["12 pouches per pack — 3 flavours","Chicken, tuna & salmon varieties","High in protein, no artificial additives","Suitable for adult cats","Rich gravy sauce for extra hydration"],
+    related:[6,7,8]
+  },
+  6: {
+    name:"Small Animal Bedding", price:"6.99", badge:"",
+    category:"Small Animals",
+    image:"https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=900&auto=format&fit=crop",
+    desc:"Ultra-soft wood shavings bedding made from natural, kiln-dried timber. Highly absorbent and odour-controlling, it creates a warm and cosy environment for rabbits, guinea pigs, hamsters and other small animals. Dust-extracted for respiratory safety.",
+    features:["Natural kiln-dried wood shavings","20L bag — great value","Highly absorbent & odour-controlling","Dust-extracted for respiratory safety","Suitable for rabbits, guinea pigs, hamsters"],
+    related:[5,7,8]
+  },
+  7: {
+    name:"Wild Bird Seed Mix 5kg", price:"7.49", badge:"",
+    category:"Birds",
+    image:"https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=900&auto=format&fit=crop",
+    desc:"A premium blend of sunflower seeds, peanut chips and millet carefully selected to attract the widest variety of garden birds. Suitable for all types of bird feeders and ground feeding. Packed with natural energy to keep your garden visitors healthy year-round.",
+    features:["Premium sunflower seeds, peanuts & millet","Attracts a wide range of garden birds","Suitable for all feeder types","Packed with natural oils & energy","5kg resealable bag"],
+    related:[5,6,8]
+  },
+  8: {
+    name:"Dog Shampoo & Conditioner", price:"9.99", badge:"New",
+    category:"Dogs",
+    image:"https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=900&auto=format&fit=crop",
+    desc:"A gentle yet effective shampoo and conditioner formulated for all coat types. Enriched with oat extract and aloe vera to soothe sensitive skin, leaving your dog's coat clean, soft and smelling fresh for days. Soap-free and pH-balanced for regular use.",
+    features:["Suitable for all coat types","Enriched with oat extract & aloe vera","Soap-free, pH-balanced formula","Safe for regular use","Fresh, light fragrance"],
+    related:[1,2,3]
+  }
+};
+
+// Load product from URL param
+var qty = 1;
+var params = new URLSearchParams(window.location.search);
+var id = parseInt(params.get('id')) || 1;
+var p = products[id] || products[1];
+
+// Populate page
+document.title = p.name + ' — Pet Shop Glasgow';
+document.getElementById('breadcrumbName').textContent = p.name;
+document.getElementById('prodImg').src = p.image;
+document.getElementById('prodImg').alt = p.name;
+document.getElementById('prodTitle').textContent = p.name;
+document.getElementById('prodPrice').innerHTML = '&pound;' + p.price;
+document.getElementById('prodDesc').textContent = p.desc;
+document.getElementById('prodCategory').childNodes[0] && (document.getElementById('prodCategory').textContent = p.category);
+document.querySelector('.product-category').textContent = p.category;
+
+var badgeEl = document.getElementById('prodBadge');
+var badgeInline = document.getElementById('prodBadgeInline');
+if (p.badge) {
+  badgeEl.textContent = p.badge;
+  badgeEl.className = 'product-badge ' + (p.badge === 'Best Seller' ? 'best' : 'new');
+  badgeInline.textContent = p.badge;
+  badgeInline.style.display = 'inline';
+} else {
+  badgeEl.style.display = 'none';
+  badgeInline.style.display = 'none';
+}
+
+var fl = document.getElementById('prodFeatures');
+p.features.forEach(function(f) {
+  var li = document.createElement('li');
+  li.textContent = f;
+  fl.appendChild(li);
+});
+
+// Related products
+var rg = document.getElementById('relatedGrid');
+p.related.forEach(function(rid) {
+  var r = products[rid];
+  if (!r) return;
+  var a = document.createElement('a');
+  a.className = 'related-card';
+  a.href = 'product.html?id=' + rid;
+  a.innerHTML = '<div class="related-img"><img src="' + r.image + '" alt="' + r.name + '" loading="lazy"></div>'
+    + '<div class="related-info"><div class="related-name">' + r.name + '</div>'
+    + '<div class="related-price">&pound;' + r.price + '</div></div>';
+  rg.appendChild(a);
+});
+
+// Qty
+function changeQty(d) {
+  qty = Math.max(1, qty + d);
+  document.getElementById('qtyVal').textContent = qty;
+}
+
+// Add to bag ripple
+var addBtn = document.getElementById('addMainBtn');
+addBtn.addEventListener('click', function(e) {
+  var r = this.getBoundingClientRect();
+  var s = Math.max(r.width, r.height);
+  var sp = document.createElement('span');
+  sp.className = 'rpl';
+  sp.style.cssText = 'width:'+s+'px;height:'+s+'px;left:'+(e.clientX-r.left-s/2)+'px;top:'+(e.clientY-r.top-s/2)+'px;';
+  this.appendChild(sp);
+  setTimeout(function(){ sp.remove(); }, 520);
+  var b = document.getElementById('cartBadge');
+  var c = parseInt(b.textContent) + qty;
+  b.textContent = c;
+  b.style.transform = 'scale(1.45)';
+  setTimeout(function(){ b.style.transform = ''; }, 300);
+  addBtn.textContent = 'Added to Bag!';
+  setTimeout(function(){
+    addBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg> Add to Bag';
+  }, 2000);
+});
+
+// Mobile menu
+var burger = document.getElementById('burger'), mob = document.getElementById('mob-menu');
+burger.addEventListener('click', function(){ burger.classList.toggle('open'); mob.classList.toggle('open'); });
+mob.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ burger.classList.remove('open'); mob.classList.remove('open'); }); });
+</script>
+</body>
+</html>
